@@ -87,6 +87,7 @@ struct msg_t recv_one_message(int fd) {
         if (received) {
             return msg;
         }
+        sleep(0.1);
     }
 
     return msg;

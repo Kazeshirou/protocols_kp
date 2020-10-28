@@ -79,8 +79,12 @@ int process_poll_fds(struct pollfd* fds, int* nfds) {
             continue;
 
         if (fds[i].revents != POLLIN) {
-            printf("  Error! revents = %d\n", fds[i].revents);
-            return -1;
+            printf("  Error on descriptor %d! revents = %d\n", fds[i].fd,
+                   fds[i].revents);
+            close(fds[i].fd);
+            fds[i].fd = -1;
+            compress  = 1;
+            continue;
         }
 
         if (i == 0) {

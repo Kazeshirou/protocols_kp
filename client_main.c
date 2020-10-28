@@ -1,5 +1,6 @@
 #include "create_client_socket.h"
 #include "echo_client.h"
+#include "end_program_handler.h"
 #include "get_server_addr.h"
 #include "while_true.h"
 
@@ -8,6 +9,10 @@
 int while_true = 1;
 
 int main(int argc, char* argv[]) {
+    if (set_end_program_handler() < 0) {
+        return 0;
+    }
+
     char server[100];
     char port[20];
     if (argc > 1) {
@@ -34,9 +39,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    while (echo_client(client_fd) > 0) {
-        ;
-    }
+    echo_client(client_fd);
 
     close(client_fd);
     freeaddrinfo(server_addr);
