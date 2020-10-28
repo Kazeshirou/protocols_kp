@@ -3,26 +3,14 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
-#include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "msg.h"
+#include "poll_fd_storage.h"
 #include "while_true.h"
 
-void compress_poll_fds(struct pollfd* fds, int* nfds) {
-    for (int i = 0; i < *nfds; i++) {
-        if (fds[i].fd == -1) {
-            for (int j = i; j < *nfds; j++) {
-                fds[j].fd = fds[j + 1].fd;
-            }
-            i--;
-            (*nfds)--;
-        }
-    }
-}
-
-int process_listener(const int listener_fd, struct pollfd* fds, int* nfds) {
+int process_listener(const int listener_fd, struct poll_fd_storage_t* storage) {
     int client_fd;
     while (while_true) {
         client_fd = accept(listener_fd, NULL, NULL);
@@ -43,9 +31,12 @@ int process_listener(const int listener_fd, struct pollfd* fds, int* nfds) {
         }
 
         printf("  New incoming connection - %d\n", client_fd);
-        fds[*nfds].fd     = client_fd;
-        fds[*nfds].events = POLLIN;
-        (*nfds)++;
+        struct pollfd client_poll_fd;
+        client_poll_fd.fd     = client_fd;
+        client_poll_fd.events = POLLIN;
+        if (add_poll_fd_to_storage(storage, client_poll_fd) < 0) {
+            return -1;
+        }
     };
 
     return 1;
@@ -70,61 +61,68 @@ int process_client(const int client_fd) {
     return 1;
 }
 
-int process_poll_fds(struct pollfd* fds, int* nfds) {
+int process_poll_fds(struct poll_fd_storage_t* storage) {
     // Есть сокеты, готовые к чтению.
-    int current_size = *nfds;
+    int current_size = storage->size;
     int compress     = 0;
     for (int i = 0; i < current_size; i++) {
-        if (fds[i].revents == 0)
+        if (storage->fds[i].revents == 0)
             continue;
 
-        if (fds[i].revents != POLLIN) {
-            printf("  Error on descriptor %d! revents = %d\n", fds[i].fd,
-                   fds[i].revents);
-            close(fds[i].fd);
-            fds[i].fd = -1;
-            compress  = 1;
+        if (storage->fds[i].revents != POLLIN) {
+            printf("  Error on descriptor %d! revents = %d\n",
+                   storage->fds[i].fd, storage->fds[i].revents);
+            close(storage->fds[i].fd);
+            storage->fds[i].fd = -1;
+            compress           = 1;
             continue;
         }
 
         if (i == 0) {
             printf("  Listening socket is readable\n");
 
-            if (process_listener(fds[0].fd, fds, nfds) < 0) {
+            if (process_listener(storage->fds[0].fd, storage) < 0) {
                 return -1;
             }
             continue;
         }
 
-        printf("  Descriptor %d is readable\n", fds[i].fd);
-        if (process_client(fds[i].fd) < 0) {
-            close(fds[i].fd);
-            fds[i].fd = -1;
-            compress  = 1;
+        printf("  Descriptor %d is readable\n", storage->fds[i].fd);
+        if (process_client(storage->fds[i].fd) < 0) {
+            close(storage->fds[i].fd);
+            storage->fds[i].fd = -1;
+            compress           = 1;
         }
     }
 
     if (compress) {
         compress = 0;
-        compress_poll_fds(fds, nfds);
+        compress_poll_fd_storage(storage);
     }
 
     return 1;
 }
 
 void echo_server(const int listener_fd) {
-    struct pollfd fds[200];
-    int           nfds = 1;
-    memset(fds, 0, sizeof(fds));
+    struct poll_fd_storage_t storage = create_poll_fd_storage(50);
+    if (!storage.fds) {
+        return;
+    }
 
     // Настройка начального прослушивающего сокета.
-    fds[0].fd     = listener_fd;
-    fds[0].events = POLLIN;
+    struct pollfd listener_poll_fd;
+    listener_poll_fd.fd     = listener_fd;
+    listener_poll_fd.events = POLLIN;
+
+    if (add_poll_fd_to_storage(&storage, listener_poll_fd) < 0) {
+        return;
+    }
+
     // Тайм-аут 3 минуты в мс.
     int timeout = 3 * 60 * 1000;
     while (while_true) {
         printf("Waiting on poll()...\n");
-        int poll_res = poll(fds, nfds, timeout);
+        int poll_res = poll(storage.fds, storage.size, timeout);
 
         if (poll_res < 0) {
             perror("  poll() failed");
@@ -137,13 +135,14 @@ void echo_server(const int listener_fd) {
         }
 
         // Есть сокеты, готовые к чтению.
-        if (process_poll_fds(fds, &nfds) < 0) {
+        if (process_poll_fds(&storage) < 0) {
             break;
         }
     };
 
-    for (int i = 1; i < nfds; i++) {
-        if (fds[i].fd >= 0)
-            close(fds[i].fd);
+    for (int i = 1; i < storage.size; i++) {
+        if (storage.fds[i].fd >= 0)
+            close(storage.fds[i].fd);
     }
+    free_poll_fd_storage(&storage);
 }

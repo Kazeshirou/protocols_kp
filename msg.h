@@ -17,9 +17,13 @@ struct msg_t {
 struct msg_t create_msg(const size_t max_size) {
     struct msg_t msg = {.text = NULL, .size = 0, .max_size = 0};
     msg.text         = calloc(max_size, sizeof(char));
-    if (msg.text) {
-        msg.max_size = max_size;
+
+    if (!msg.text) {
+        printf("Creating of msg_t failed");
+        return msg;
     }
+
+    msg.max_size = max_size;
     return msg;
 }
 
