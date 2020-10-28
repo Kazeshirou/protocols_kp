@@ -1,8 +1,11 @@
 #include "create_server_socket.h"
 #include "echo_server.h"
+#include "while_true.h"
 
 #define DEFAULT_PORT          49001
 #define CONNECTION_QUEUE_SIZE 100
+
+int while_true = 1;
 
 int main(int argc, char* argv[]) {
     int port = DEFAULT_PORT;

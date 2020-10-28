@@ -1,8 +1,11 @@
 #include "create_client_socket.h"
 #include "echo_client.h"
 #include "get_server_addr.h"
+#include "while_true.h"
 
 #define DEFAULT_SERVER_PORT "49001"
+
+int while_true = 1;
 
 int main(int argc, char* argv[]) {
     char server[100];

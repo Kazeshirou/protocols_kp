@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "msg.h"
+#include "while_true.h"
 
 void compress_poll_fds(struct pollfd* fds, int* nfds) {
     for (int i = 0; i < *nfds; i++) {
@@ -23,7 +24,7 @@ void compress_poll_fds(struct pollfd* fds, int* nfds) {
 
 int process_listener(const int listener_fd, struct pollfd* fds, int* nfds) {
     int client_fd;
-    while (1) {
+    while (while_true) {
         client_fd = accept(listener_fd, NULL, NULL);
         if (client_fd < 0) {
             if (errno != EWOULDBLOCK) {
@@ -117,7 +118,7 @@ void echo_server(const int listener_fd) {
     fds[0].events = POLLIN;
     // Тайм-аут 3 минуты в мс.
     int timeout = 3 * 60 * 1000;
-    while (1) {
+    while (while_true) {
         printf("Waiting on poll()...\n");
         int poll_res = poll(fds, nfds, timeout);
 

@@ -6,6 +6,8 @@
 #include <string.h>
 #include <sys/socket.h>
 
+#include "while_true.h"
+
 struct msg_t {
     char*  text;
     size_t size;
@@ -63,7 +65,7 @@ struct msg_t recv_one_message(int fd) {
     struct msg_t msg = create_msg(50);
     char         recv_buffer[1000];
     size_t       received = 0;
-    while (1) {
+    while (while_true) {
         int recv_res = recv(fd, &recv_buffer, sizeof(recv_buffer), 0);
         if (recv_res == 0) {
             printf("The connection is closed\n");
