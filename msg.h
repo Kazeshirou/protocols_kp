@@ -8,18 +8,18 @@
 
 #include "while_true.h"
 
-struct msg_t {
+struct msg {
     char*  text;
     size_t size;
     size_t max_size;
 };
 
-struct msg_t create_msg(const size_t max_size) {
-    struct msg_t msg = {.text = NULL, .size = 0, .max_size = 0};
-    msg.text         = calloc(max_size, sizeof(char));
+struct msg create_msg(const size_t max_size) {
+    struct msg msg = {.text = NULL, .size = 0, .max_size = 0};
+    msg.text       = calloc(max_size, sizeof(char));
 
     if (!msg.text) {
-        printf("Creating of msg_t failed");
+        printf("Creating of msg failed");
         return msg;
     }
 
@@ -27,7 +27,7 @@ struct msg_t create_msg(const size_t max_size) {
     return msg;
 }
 
-int recreate_msg(struct msg_t* msg, const size_t new_max_size) {
+int recreate_msg(struct msg* msg, const size_t new_max_size) {
     if (new_max_size <= msg->max_size) {
         return 0;
     }
@@ -48,7 +48,7 @@ int recreate_msg(struct msg_t* msg, const size_t new_max_size) {
     return 1;
 }
 
-int add_text_to_message(struct msg_t* msg, const char* buf, size_t size) {
+int add_text_to_message(struct msg* msg, const char* buf, size_t size) {
     size_t new_size = msg->size + size;
     if (new_size > msg->max_size) {
         if (recreate_msg(msg, new_size + 50) < 0) {
@@ -61,14 +61,14 @@ int add_text_to_message(struct msg_t* msg, const char* buf, size_t size) {
     return msg->size;
 }
 
-void free_msg(struct msg_t* msg) {
+void free_msg(struct msg* msg) {
     free(msg->text);
 }
 
-struct msg_t recv_one_message(int fd) {
-    struct msg_t msg = create_msg(50);
-    char         recv_buffer[1000];
-    size_t       received = 0;
+struct msg recv_one_message(int fd) {
+    struct msg msg = create_msg(50);
+    char       recv_buffer[1000];
+    size_t     received = 0;
     WHILE_TRUE() {
         int recv_res = recv(fd, &recv_buffer, sizeof(recv_buffer), 0);
         if (recv_res == 0) {

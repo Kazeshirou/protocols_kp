@@ -43,7 +43,7 @@ int process_listener(const int listener_fd, struct poll_fd_storage_t* storage) {
 }
 
 int process_client(const int client_fd) {
-    struct msg_t msg = recv_one_message(client_fd);
+    struct msg msg = recv_one_message(client_fd);
     if (!msg.size) {
         free_msg(&msg);
         return -1;

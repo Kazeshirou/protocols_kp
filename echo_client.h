@@ -46,7 +46,7 @@ void echo_client(int client_fd) {
             return;
         }
 
-        struct msg_t msg = recv_one_message(client_fd);
+        struct msg msg = recv_one_message(client_fd);
         if (msg.size) {
             printf("%s\n", msg.text);
             free_msg(&msg);
