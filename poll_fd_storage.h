@@ -5,18 +5,18 @@
 #include <string.h>
 #include <sys/poll.h>
 
-struct poll_fd_storage_t {
+struct poll_fd_storage {
     struct pollfd* fds;
     size_t         size;
     size_t         max_size;
 };
 
-struct poll_fd_storage_t create_poll_fd_storage(const size_t max_size) {
-    struct poll_fd_storage_t storage = {.fds = NULL, .size = 0, .max_size = 0};
+struct poll_fd_storage create_poll_fd_storage(const size_t max_size) {
+    struct poll_fd_storage storage = {.fds = NULL, .size = 0, .max_size = 0};
     storage.fds = (struct pollfd*)calloc(max_size, sizeof(struct pollfd));
 
     if (!storage.fds) {
-        printf("Creating of poll_fd_storage_t failed");
+        printf("Creating of poll_fd_storage failed");
         return storage;
     }
 
@@ -27,8 +27,8 @@ struct poll_fd_storage_t create_poll_fd_storage(const size_t max_size) {
     return storage;
 }
 
-int recreate_poll_fd_storage(struct poll_fd_storage_t* storage,
-                             const size_t              new_max_size) {
+int recreate_poll_fd_storage(struct poll_fd_storage* storage,
+                             const size_t            new_max_size) {
     if (new_max_size <= storage->max_size) {
         return 0;
     }
@@ -51,8 +51,8 @@ int recreate_poll_fd_storage(struct poll_fd_storage_t* storage,
     return 1;
 }
 
-int add_poll_fd_to_storage(struct poll_fd_storage_t* storage,
-                           const struct pollfd       fd) {
+int add_poll_fd_to_storage(struct poll_fd_storage* storage,
+                           const struct pollfd     fd) {
     size_t new_size = storage->size + 1;
     if (new_size > storage->max_size) {
         if (recreate_poll_fd_storage(storage, new_size + 50) < 0) {
@@ -65,11 +65,11 @@ int add_poll_fd_to_storage(struct poll_fd_storage_t* storage,
     return storage->size;
 }
 
-void free_poll_fd_storage(struct poll_fd_storage_t* storage) {
+void free_poll_fd_storage(struct poll_fd_storage* storage) {
     free(storage->fds);
 }
 
-void compress_poll_fd_storage(struct poll_fd_storage_t* storage) {
+void compress_poll_fd_storage(struct poll_fd_storage* storage) {
     for (int i = 0; i < storage->size; i++) {
         if (storage->fds[i].fd == -1) {
             for (int j = i; j < storage->size; j++) {
