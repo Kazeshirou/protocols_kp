@@ -31,11 +31,13 @@ void echo_client(int client_fd) {
             return;
         }
 
-        size_t length = read(fd.fd, buffer, sizeof(buffer) - 1) - 1;
+        size_t length = read(fd.fd, buffer, sizeof(buffer) - 1);
         if (!length) {
             return;
         }
-
+        if (buffer[length - 1] == '\n') {
+            length--;
+        }
         buffer[length] = 0;
         int send_res;
         do {
