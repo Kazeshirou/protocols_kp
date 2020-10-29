@@ -12,7 +12,7 @@
 
 int process_listener(const int listener_fd, struct poll_fd_storage_t* storage) {
     int client_fd;
-    while (while_true) {
+    WHILE_TRUE() {
         client_fd = accept(listener_fd, NULL, NULL);
         if (client_fd < 0) {
             if (errno != EWOULDBLOCK) {
@@ -120,7 +120,7 @@ void echo_server(const int listener_fd) {
 
     // Тайм-аут 3 минуты в мс.
     int timeout = 3 * 60 * 1000;
-    while (while_true) {
+    WHILE_TRUE() {
         printf("Waiting on poll()...\n");
         int poll_res = poll(storage.fds, storage.size, timeout);
 
