@@ -4,7 +4,7 @@ SOURCES += $(shell find client/ -name '*.c')
 include build_tools/compile.mk
 
 .PHONY: client
-client:
+client: all
 	@echo Building common
 	@$(MAKE) all --makefile=common/sources.mk
 	@echo - Executing linker
