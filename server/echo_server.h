@@ -140,7 +140,7 @@ void echo_server(const int listener_fd) {
         }
     };
 
-    for (int i = 1; i < storage.size; i++) {
+    for (size_t i = 1; i < storage.size; i++) {
         if (storage.fds[i].fd >= 0)
             close(storage.fds[i].fd);
     }

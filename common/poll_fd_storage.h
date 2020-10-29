@@ -21,7 +21,7 @@ struct poll_fd_storage create_poll_fd_storage(const size_t max_size) {
     }
 
     storage.max_size = max_size;
-    for (int i = 0; i < max_size; i++) {
+    for (size_t i = 0; i < max_size; i++) {
         storage.fds[i].fd = -1;
     }
     return storage;
@@ -38,7 +38,7 @@ int recreate_poll_fd_storage(struct poll_fd_storage* storage,
         printf("new_buf calloc failed");
         return -1;
     }
-    for (int i = storage->max_size; i < new_max_size; i++) {
+    for (size_t i = storage->max_size; i < new_max_size; i++) {
         new_buf[i].fd = -1;
     }
     if (storage->fds) {
@@ -70,9 +70,9 @@ void free_poll_fd_storage(struct poll_fd_storage* storage) {
 }
 
 void compress_poll_fd_storage(struct poll_fd_storage* storage) {
-    for (int i = 0; i < storage->size; i++) {
+    for (size_t i = 0; i < storage->size; i++) {
         if (storage->fds[i].fd == -1) {
-            for (int j = i; j < storage->size; j++) {
+            for (size_t j = i; j < storage->size; j++) {
                 storage->fds[j].fd = storage->fds[j + 1].fd;
             }
             i--;

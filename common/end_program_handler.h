@@ -6,6 +6,7 @@
 #include "while_true.h"
 
 void end_program_handler(int signum) {
+    (void)signum;
     printf(" Ending program by signal...\n");
     while_true = 0;
 
