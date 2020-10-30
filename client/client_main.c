@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <string.h>  // strcpy
+#include <unistd.h>  // close
+
 #include "create_client_socket.h"
 #include "echo_client.h"
 #include "end_program_handler.h"
@@ -18,7 +22,7 @@ int main(int argc, char* argv[]) {
     if (argc > 1) {
         strcpy(server, argv[1]);
     } else {
-        perror("Server addr is undefined");
+        printf("Server addr is undefined");
         return 0;
     }
 

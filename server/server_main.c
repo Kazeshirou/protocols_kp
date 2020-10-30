@@ -1,3 +1,6 @@
+#include <stdlib.h>  // atoi
+#include <unistd.h>  // close
+
 #include "create_server_socket.h"
 #include "echo_server.h"
 #include "end_program_handler.h"
