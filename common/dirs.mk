@@ -1,4 +1,1 @@
-COMMON_SUBDIRS += 
-
-DIRS += common/
-DIRS += $(addprefix common/,$(COMMON_SUBDIRS))
+DIRS += $(subst ./,,$(shell find common/ -type d))

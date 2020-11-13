@@ -1,4 +1,1 @@
-CLIENT_SUBDIRS += 
-
-DIRS += client/
-DIRS += $(addprefix client/,$(CLIENT_SUBDIRS))
+DIRS += $(subst ./,,$(shell find client/ -type d -not -path "client/tests/*"))

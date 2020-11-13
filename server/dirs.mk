@@ -1,4 +1,1 @@
-SERVER_SUBDIRS += 
-
-DIRS += server/
-DIRS += $(addprefix server/,$(SERVER_SUBDIRS))
+DIRS += $(subst ./,,$(shell find server/ -type d -not -path "server/tests/*"))
