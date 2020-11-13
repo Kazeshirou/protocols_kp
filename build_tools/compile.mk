@@ -8,9 +8,8 @@
 # CFLAGS   - Флаги передаваемые компилятору при обработке C исходников
 
 include build_tools/settings.mk
-include build_tools/precompile.mk
 
-# Вычисляем имена объектникиов основываясь на исходниках.
+# Вычисляем имена объектников основываясь на исходниках.
 TMP_OBJS = $(SOURCES:.c=.o)
 
 # Вычисляем конечные пути расположения объектников и файлов с зависимостями
@@ -18,7 +17,7 @@ OBJS = $(addprefix $(OBJS_PATH)/,$(TMP_OBJS))
 DEPS = $(addprefix $(DEPS_PATH)/,$(TMP_OBJS:.o=.d))
 
 CC :=  gcc
-CFLAGS += $(OPTIMIZATION_LVL) $(FLTO_FLAG) -Wall -Wextra -Werror -ffunction-sections
+CFLAGS := $(OPTIMIZATION_LVL) -Wall -Wextra -Werror -ffunction-sections
 
 # Переменная содержит флаги для генерации файла с зависимостями обрабатываемого исходника.
 # Файл с зависимостями имеет путь: $(DEPS_PATH)/_path_to_source_/_source_name_.Td
@@ -31,7 +30,7 @@ DEFFLAGS = $(addprefix -D,$(DEFS))
 # Никто не понимает смысл этих действий, но если вы поймете, то расскажите нам.
 POSTCOMPILE = @mv -f $(DEPS_PATH)/$*.Td $(DEPS_PATH)/$*.d && touch $@
 
-# Добавляем зависимость объектных файлов от мейкфайов,
+# Добавляем зависимость объектных файлов от мейкфайлов,
 # которые встречались до текущего момента.
 COMMON_OBJ_DEPS := $(MAKEFILE_LIST)
 
