@@ -17,7 +17,7 @@ void echo_client(int client_fd) {
     fd.events = POLLIN;
     // Тайм-аут 3 минуты в мс.
     int timeout = 3 * 60 * 1000;
-    while (while_true) {
+    WHILE_TRUE() {
         int poll_res = poll(&fd, 1, timeout);
 
         if (poll_res < 0) {
