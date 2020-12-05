@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -41,8 +42,8 @@ int process_listener(const int listener_fd, struct poll_fd_storage* storage) {
     return 1;
 }
 
-int process_client(const int client_fd) {
-    struct msg msg = recv_one_message(client_fd);
+int process_client(struct poll_fd_storage* storage, const size_t i) {
+    struct msg msg = recv_one_message(storage->fds[i].fd);
     if (!msg.size) {
         free_msg(&msg);
         return -1;
@@ -50,8 +51,24 @@ int process_client(const int client_fd) {
 
     printf("  %ld bytes received:\n", msg.size);
     printf("   -> %s\n", msg.text);
+
+    if (!msg.size ||
+        (add_text_to_message(storage->msgs + i, msg.text, msg.size) < 0)) {
+        perror("  add_text_to_msg() failed");
+        free_msg(&msg);
+        return -1;
+    }
+
+    char* full_msg = get_msg(storage->msgs + i);
+    if (!full_msg) {
+        return 0;
+    }
+
+    // Собрано полное сообщение (получен маркер конца сообщения).
     // Отправка данных обратно на сервер.
-    int send_res = send(client_fd, msg.text, msg.size, 0);
+    printf("  Finished msg has found:\n");
+    printf("   -> %s\n", full_msg);
+    int send_res = send(storage->fds[i].fd, full_msg, strlen(full_msg), 0);
     free_msg(&msg);
     if (send_res < 0) {
         perror("  send() failed");
@@ -87,7 +104,7 @@ int process_poll_fds(struct poll_fd_storage* storage) {
         }
 
         printf("  Descriptor %d is readable\n", storage->fds[i].fd);
-        if (process_client(storage->fds[i].fd) < 0) {
+        if (process_client(storage, i) < 0) {
             close(storage->fds[i].fd);
             storage->fds[i].fd = -1;
             compress           = 1;

@@ -4,13 +4,15 @@
 
 #include "create_client_socket.h"
 #include "echo_client.h"
+#include "end_marker.h"
 #include "end_program_handler.h"
 #include "get_server_addr.h"
 #include "while_true.h"
 
 #define DEFAULT_SERVER_PORT "49001"
 
-int while_true = 1;
+int         while_true = 1;
+const char* end_marker = "123";
 
 int main(int argc, char* argv[]) {
     if (set_end_program_handler() < 0) {

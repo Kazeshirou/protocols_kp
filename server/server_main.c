@@ -3,13 +3,15 @@
 
 #include "create_server_socket.h"
 #include "echo_server.h"
+#include "end_marker.h"
 #include "end_program_handler.h"
 #include "while_true.h"
 
 #define DEFAULT_PORT          49001
 #define CONNECTION_QUEUE_SIZE 100
 
-int while_true = 1;
+int         while_true = 1;
+const char* end_marker = "123";
 
 int main(int argc, char* argv[]) {
     if (set_end_program_handler() < 0) {

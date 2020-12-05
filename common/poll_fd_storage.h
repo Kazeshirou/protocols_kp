@@ -3,8 +3,11 @@
 #include <stddef.h>
 #include <sys/poll.h>
 
+#include "msg.h"
+
 struct poll_fd_storage {
     struct pollfd* fds;
+    struct msg*    msgs;
     size_t         size;
     size_t         max_size;
 };
